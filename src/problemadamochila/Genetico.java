@@ -1,4 +1,4 @@
-package algoritmogenetico;
+package problemadamochila;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -8,8 +8,8 @@ public class Genetico {
 	public static final double TAXADEMUTACAO = 0.5;
 	static final double TAXADECRUZAMENTO = 0.9;
 	static final boolean ELITISMO = true;
-	static final int TAMANHODAPOPULACAO = 400;
-	static final int MAXIMODEGERACOES = 1000;
+	static final int TAMANHODAPOPULACAO = 8;
+	static final int MAXIMODEGERACOES = 500;
         //-------------------------------------------------
         
 	private Populacao populacao;
@@ -28,10 +28,11 @@ public class Genetico {
 	public void Iniciar(){
 		int geracao = 0;
 		populacao.iniciarPopulacao(TAMANHODAPOPULACAO);
-		do {
-			populacao = gerarPopulacao();
 
-			System.out.println("Geracao " + geracao +  "| Melhor " + populacao.getIndividuo(0));
+		do {
+                        System.out.println("Geracao " + geracao +  "| Melhor " + populacao.getMelhor());
+			
+                        populacao = gerarPopulacao();
 
 			contaEstagnacao();
 			if(contEstagnar >= 200)
@@ -45,7 +46,7 @@ public class Genetico {
 		Populacao novaPopulacao = new Populacao();
 
 		if (ELITISMO) {
-			novaPopulacao.setIndividuo(populacao.getIndividuo(0));
+			novaPopulacao.setIndividuo(populacao.getMelhor());
 		}
 
 		// insere novos individuos na nova populacao, ate atingir o tamanho maximo
@@ -63,8 +64,8 @@ public class Genetico {
 		int a, b;
 		//repete esse laco 2 vezes para pegar 2 pais
 		for (int i = 0; i < 2; i++) {
-			a = r.nextInt(TAMANHODAPOPULACAO);
-			b = r.nextInt(TAMANHODAPOPULACAO);
+			a = r.nextInt(populacao.getNumIndividuos());
+			b = r.nextInt(populacao.getNumIndividuos());
 			//considerando que a populacao esta ordenada, o individuo na posicao menor eh melhor
 			if (a < b)
 				pais.add(populacao.getIndividuo(a));
@@ -117,25 +118,36 @@ public class Genetico {
             return 0;
         }
 
+        //cruzamento com 2 pontos de corte aleatórios
 	private ArrayList<Individuo> cruzamento(ArrayList<Individuo> pais) {
-		double[] pai0 = pais.get(0).getGenes();
-		double[] pai1 = pais.get(1).getGenes();
+		int[] pai0 = pais.get(0).getGenes();
+		int[] pai1 = pais.get(1).getGenes();
 
-		double[] filho0 = new double[pai0.length];
-		double[] filho1 = new double[pai1.length];
+                int[] filho0 = new int[8];
+                int[] filho1 = new int[8];
+                
+                int pontoCorte1, qtdGenes, pontoCorte2;
 
 		if (r.nextDouble() <= TAXADECRUZAMENTO) {
-			// se tiver mais genes, adapta os pontos de corte
-			System.arraycopy(pai0, 0, filho0, 0, 1);
-			System.arraycopy(pai0, 1, filho1, 1, 1);
+                        pontoCorte1 = r.nextInt(7) + 1; //gera numero de 1 a 7 (indices possiveis do cromossomo) 
+                        
+                        qtdGenes = r.nextInt(8-pontoCorte1);//qtd de genes que serao trocados, depende do ponto de corte
+                        
+                        pontoCorte2 = pontoCorte1 + qtdGenes;
 
-			System.arraycopy(pai1, 0, filho1, 0, 1);
-			System.arraycopy(pai1, 1, filho0, 1, 1);
-		} else {
-			filho0 = pai0;
-			filho1 = pai1;
-		}
-
+			System.arraycopy(pai0, 0, filho0, 0, pontoCorte1);
+                        System.arraycopy(pai0, pontoCorte1, filho1, pontoCorte1, qtdGenes);
+                        
+                        System.arraycopy(pai1, 0, filho1, 0, pontoCorte1);
+                        System.arraycopy(pai1, pontoCorte1, filho0, pontoCorte1, qtdGenes);
+                        
+                        if(pontoCorte2 < 8){
+                            System.arraycopy(pai1, pontoCorte2, filho1, pontoCorte2, 8-pontoCorte2);
+                            System.arraycopy(pai0, pontoCorte2, filho0, pontoCorte2, 8-pontoCorte2);
+                        }
+            	} 
+                
+              
 		ArrayList<Individuo> filhos = new ArrayList<>();
 		filhos.add(new Individuo(filho0));
 		filhos.add(new Individuo(filho1));
@@ -144,8 +156,8 @@ public class Genetico {
 	}
 
 	private void contaEstagnacao(){
-		if (melhorAptidaoAnterior == -1 || populacao.getIndividuo(0).getAptidao() != melhorAptidaoAnterior) {
-			melhorAptidaoAnterior = populacao.getIndividuo(0).getAptidao();
+		if (melhorAptidaoAnterior == -1 || populacao.getMelhor().getAptidao() != melhorAptidaoAnterior) {
+			melhorAptidaoAnterior = populacao.getMelhor().getAptidao();
 			contEstagnar = 1;
 		} else {
 			contEstagnar++;

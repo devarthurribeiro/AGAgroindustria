@@ -1,10 +1,11 @@
-package algoritmogenetico;
+package problemadamochila;
 
 import java.util.ArrayList;
 import java.util.Collections;
 
 public class Populacao {
 	private final ArrayList<Individuo> individuos;
+        private Individuo melhor;
 
 	public Populacao(){
 		individuos = new ArrayList<>();
@@ -18,8 +19,15 @@ public class Populacao {
 	}
 
 	public void ordenarPopulacao() {
-                //crescente para casos de minimização
-                Collections.sort(individuos);
+                //Ordem inversa para problemas de maximização
+		Collections.sort(individuos, Collections.reverseOrder());
+                //validar aqui para melhorar o desempenho
+                //nesse caso, o melhor individuo eh aquele com maior aptidao que for valido
+               for(Individuo i : individuos)
+                    if(i.validar()){
+                        melhor = i;
+                        break;
+                    }
 	}
 
 	public Individuo getIndividuo(int pos) {
@@ -40,4 +48,7 @@ public class Populacao {
 		return individuos.size();
 	}
 
+        public Individuo getMelhor() {
+            return melhor;
+        }
 }
