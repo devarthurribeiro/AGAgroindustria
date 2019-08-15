@@ -3,78 +3,80 @@ package algoritmogenetico;
 import java.util.Arrays;
 import java.util.Random;
 
-public class Individuo implements Comparable<Individuo>{
-	private final Random random = new Random();
-	private Double aptidao;
-	
-	//atributos do problema especifico
-	private double qtdMilho;
-	private double qtdSoja;
+public class Individuo implements Comparable<Individuo> {
 
-	//cria um individuo aleatorio da primeira geracao
-	public Individuo() {
-		do {
-			this.setQtdMilho();
-			this.setQtdSoja();
-		} while (!validar());
-		avaliar();
-	}
+    private final Random random = new Random();
+    private Double aptidao;
 
-	// cria um individuo a partir de genes definidos
-	public Individuo(double[] genes) {
-		qtdMilho = genes[0];
-		qtdSoja = genes[1];
-		//testa se deve fazer mutacao
-		if (random.nextDouble() <= Genetico.TAXADEMUTACAO) {
-			int posAleatoria = random.nextInt(genes.length); //define gene que sera mutado
-			mutacao(posAleatoria);
-		}
-		avaliar();
-	}
+    //atributos do problema especifico
+    private double qtdMilho;
+    private double qtdSoja;
 
-	private boolean validar() {
-		double proteina = 0.0851 * qtdMilho + 0.456 * qtdSoja;
-		double energia = 3146 * qtdMilho + 2283 * qtdSoja;
-		return proteina >= 0.1716 && energia >= 3000;
-	}
+    //cria um individuo aleatorio da primeira geracao
+    public Individuo() {
+        do {
+            this.setQtdMilho();
+            this.setQtdSoja();
+        } while (!validar());
+        avaliar();
+    }
 
-	private void mutacao(int posicao) {
-		do {
-			if (posicao == 0)
-				this.setQtdMilho();
-			else if (posicao == 1)
-				this.setQtdSoja();
-		} while (!validar());
+    // cria um individuo a partir de genes definidos
+    public Individuo(double[] genes) {
+        qtdMilho = genes[0];
+        qtdSoja = genes[1];
+        //testa se deve fazer mutacao
+        if (random.nextDouble() <= Genetico.TAXADEMUTACAO) {
+            int posAleatoria = random.nextInt(genes.length); //define gene que sera mutado
+            mutacao(posAleatoria);
+        }
+        avaliar();
+    }
 
-	}
+    private boolean validar() {
+        double proteina = 0.0851 * qtdMilho + 0.456 * qtdSoja;
+        double energia = 3146 * qtdMilho + 2283 * qtdSoja;
+        return proteina >= 0.1716 && energia >= 3000;
+    }
 
-	private void setQtdMilho() {
-		this.qtdMilho = random.nextDouble();
-	}
+    private void mutacao(int posicao) {
+        do {
+            if (posicao == 0) {
+                this.setQtdMilho();
+            } else if (posicao == 1) {
+                this.setQtdSoja();
+            }
+        } while (!validar());
 
-	private void setQtdSoja() {
-		this.qtdSoja = random.nextDouble();
-	}
+    }
 
-	public double getAptidao() {
-		return aptidao;
-	}
+    private void setQtdMilho() {
+        this.qtdMilho = random.nextDouble();
+    }
 
-	public double[] getGenes() {
-		return new double[] { qtdMilho, qtdSoja };
-	}
+    private void setQtdSoja() {
+        this.qtdSoja = random.nextDouble();
+    }
 
-	private void avaliar() {
-		aptidao = 0.8 * qtdMilho + 3.8 * qtdSoja;
-	}
+    public double getAptidao() {
+        return aptidao;
+    }
 
-	@Override
-	public String toString() {
-		return "Cromossomo " + Arrays.toString(getGenes()) + " Aptidao: " + aptidao + "\n";
-	}
+    public double[] getGenes() {
+        return new double[]{qtdMilho, qtdSoja};
+    }
 
-	@Override
-	public int compareTo(Individuo i) {
-		return this.aptidao.compareTo(i.aptidao);
-	}
+    private void avaliar() {
+        aptidao = 0.8 * qtdMilho + 3.8 * qtdSoja;
+    }
+
+    @Override
+    public String toString() {
+        return "Cromossomo " + Arrays.toString(getGenes()) + " Aptidao: " + aptidao + "\n";
+    }
+
+    @Override
+    public int compareTo(Individuo i) {
+        return this.aptidao.compareTo(i.aptidao);
+    }
 }
